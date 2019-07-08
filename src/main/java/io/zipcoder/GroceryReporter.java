@@ -4,10 +4,12 @@ import io.zipcoder.utils.FileReader;
 
 public class GroceryReporter {
     private final String originalFileText;
+    ItemParser itemParser = new ItemParser();
 
     public GroceryReporter(String jerksonFileName) {
         this.originalFileText = FileReader.readFile(jerksonFileName);
     }
+
 
     @Override
     public String toString() {
