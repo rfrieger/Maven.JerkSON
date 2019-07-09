@@ -9,19 +9,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ItemParser {
+    Pattern pattern;
+    Matcher matcher;
+
 
     public List<Item> parseItemList(String valueToParse) {
         List<Item> arr =new ArrayList<>();
         ArrayList<String> jerksonArr = new ArrayList<>();
-//        String result;
-        //valueToParse.replaceAll("[@|^|%]", ":");
-
-        Matcher matcher = Pattern.compile("[@|^|%]")
-                .matcher(valueToParse);
-        while (matcher.find()) {
-            matcher.replaceAll(":");
-        }
-
 
             Matcher m = Pattern.compile("(.*?)##")
                     .matcher(valueToParse);
@@ -42,53 +36,74 @@ public class ItemParser {
     }
 
     public Item parseSingleItem(String singleItem) throws ItemParseException {
-                String name = "test";
-                String price = "0.0";
-                String type = "testing";
-                String expiration = "stuff";
+                String name = "";
+                String price = "";
+                String type = "";
+                String expiration = "";
 
                 List<String> itemDescipList = new ArrayList<>();
 
+            String fixedString = fixInput(singleItem);
 
-
-            Matcher m = Pattern.compile("(.*?);|(.*?)##")
-                .matcher(singleItem);
+            Matcher m = Pattern.compile(":(.*?;)")
+                .matcher(fixedString);
             while (m.find()) {
                 itemDescipList.add(m.group(1));
             }
 
-            name = parseName(itemDescipList.get(0));
-            price = parseprice(itemDescipList.get(1));
-            type =parsetype(itemDescipList.get(2));
-            expiration = parseExperation(itemDescipList.get(3));
 
-            return new Item(name, Double.valueOf(price),type, expiration);
+            Matcher m2 = Pattern.compile("expiration:(.*?##)")
+                    .matcher(fixedString);
+            while (m2.find()) {
+                itemDescipList.add(m2.group(1));
+            }
+
+          try {
+              name = parse(itemDescipList.get(0).toLowerCase());
+              price = parse(itemDescipList.get(1));
+              type = parse(itemDescipList.get(2).toLowerCase());
+              expiration = parseExperation(itemDescipList.get(3));
+          } catch (IndexOutOfBoundsException e) {
+              throw new ItemParseException();
+          }
+
+            return new Item(name, Double.valueOf(price),type.toLowerCase(), expiration);
 
     }
 
 
-    public String parseName(String nameString) {
-        Matcher matcher = Pattern.compile(":(.*?)")
-                .matcher(nameString);
-        return matcher.group(1);
+    public String parse(String nameString) throws ItemParseException {
+        Pattern pattern = Pattern.compile("(.*?);");
+         Matcher matcher = pattern.matcher(nameString);
+         String result;
+        while (matcher.find()) {
+            result = matcher.group(1);
+            return result;
+        }return null;
     }
 
-    public String parseprice(String priceString) {
-        Matcher matcher = Pattern.compile(":(.*?)")
-                .matcher(priceString);
-        return matcher.group(1);
-    }
-
-    public String parsetype(String typeString) {
-        Matcher matcher = Pattern.compile(":(.*)")
-                .matcher(typeString);
-        return matcher.group(1);
-    }
 
     public String parseExperation(String experationString) {
-        Matcher matcher = Pattern.compile(":(.*)")
-                .matcher(experationString);
-        return matcher.group(1);
+        Pattern pattern = Pattern.compile("(\\d{1,2}/\\d{2}/\\d{4})##");
+        Matcher matcher = pattern.matcher(experationString);
+        while (matcher.find()) {
+           String result = matcher.group(1);
+            System.out.println(result);
+            return result;
+        }return null;
+    }
+
+
+    private String fixInput(String toFix){
+
+        pattern = pattern.compile("@|\\^|\\*|%|!");
+        matcher = pattern.matcher(toFix);
+        String result = matcher.replaceAll(":");
+
+        pattern = pattern.compile("Food(.*)expiration");
+        matcher = pattern.matcher(result);
+        String ultimateFix = matcher.replaceAll("Food;expiration");
+        return ultimateFix;
     }
 
 
