@@ -23,27 +23,25 @@ public class ItemParser {
                 jerksonArr.add(m.group());
             }
 
-
             for (String i : jerksonArr){
                 try {
                     arr.add(parseSingleItem(i));
                 } catch (ItemParseException e) {
                     e.printStackTrace();
                 }
-//
             }
             return  arr;
     }
 
     public Item parseSingleItem(String singleItem) throws ItemParseException {
-                String name = "";
-                String price = "";
-                String type = "";
-                String expiration = "";
-
-                List<String> itemDescipList = new ArrayList<>();
-
+            String name = "";
+            String price = "";
+            String type = "";
+            String expiration = "";
             String fixedString = fixInput(singleItem);
+            List<String> itemDescipList = new ArrayList<>();
+
+
 
             Matcher m = Pattern.compile(":(.*?;)")
                 .matcher(fixedString);
@@ -102,8 +100,8 @@ public class ItemParser {
 
         pattern = pattern.compile("Food(.*)expiration");
         matcher = pattern.matcher(result);
-        String ultimateFix = matcher.replaceAll("Food;expiration");
-        return ultimateFix;
+        String Fix = matcher.replaceAll("Food;expiration");
+        return Fix;
     }
 
 
